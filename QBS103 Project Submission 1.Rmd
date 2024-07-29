@@ -1,0 +1,67 @@
+---
+title: "QBS103 Project Submission 1"
+output: pdf_document
+date: "2024-07-25"
+---
+```{r}
+filenames <- list.files(path = "/Users/elodierichard/Documents/QBS103/Project Submission 1 Data", pattern = ".csv")
+print(filenames)
+```
+```{r}
+setwd("/Users/elodierichard/Documents/QBS103/Project Submission 1 Data")
+
+#for (file in filenames){
+  #the_file <- read.csv(file)
+ # print(head(the_file))
+#}
+
+genes <- read.csv("QBS103_GSE157103_genes.csv")
+the_matrix <- read.csv("QBS103_GSE157103_series_matrix.csv")
+
+head(genes)
+head(the_matrix)
+```
+
+#melt the files together tidyverse maybe datawrangling2
+```{r}
+#creating a genes data frame for that file
+test_genes <- as.data.frame(t(genes))
+names(test_genes) <- test_genes[1,]
+test_genes <- test_genes[-1,]
+```
+
+```{r}
+test_genes$participant_id <- row.names(test_genes)
+combined <- merge(test_genes, the_matrix, by = "participant_id")
+```
+
+```{r}
+library(ggplot2)
+setwd("/Users/elodierichard/Documents/QBS103/Project Submission 1 Data")
+
+#combined$AAAS <- as.numeric(combined$AAAS)
+
+ #gene_name <- 'A4GALT'
+  #age_var <- combined$age
+  histogram <- ggplot(combined, aes(x=combined$AAAS)) + geom_histogram(bins = 10, fill = "darkgreen") + labs(title = 'Gene Expression', x= 'Gene Expression of AAAS' , y= 'Frequency of AAAS' )
+  plot(histogram)
+```
+
+```{r}
+library(ggplot2)
+combined$ferritin.ng.ml. <- as.numeric(combined$ferritin.ng.ml.)
+
+  scatterplot <- ggplot(combined, aes(x= combined$ferritin.ng.ml., y = combined$AAAS)) + geom_point(bins = 10, fill = "darkgreen") +  labs(title = 'Gene Expression and Ferritin' , x= 'Ferritin', y= 'Gene AAAS')
+  plot(scatterplot)
+```
+
+```{r}
+library(ggplot2)
+#combined$age <- as.numeric(combined$age)
+#combined$charlson_score <- as.numeric(combined$charlson_score)
+
+ #gene_name <- 'A4GALT'
+  #age_var <- combined$age
+  boxplot <- ggplot(combined, aes(x=icu_status, y = AAAS, fill = age)) + geom_boxplot(bins = 10, fill = "darkgreen") + labs(title = 'Gene Expression related to ICU Status', x= 'ICU Status' , y= 'Gene AAAS', fill= 'Age')
+  plot(boxplot)
+```
