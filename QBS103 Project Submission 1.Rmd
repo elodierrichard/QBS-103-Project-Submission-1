@@ -56,6 +56,7 @@ combined$ferritin.ng.ml. <- as.numeric(combined$ferritin.ng.ml.)
 ```
 
 ```{r}
+#Boxplot
 library(ggplot2)
 #combined$age <- as.numeric(combined$age)
 #combined$charlson_score <- as.numeric(combined$charlson_score)
