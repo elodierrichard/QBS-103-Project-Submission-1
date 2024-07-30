@@ -1,68 +1,84 @@
 ---
-title: "QBS103 Project Submission 1"
-output: pdf_document
+title: "QBS103 Project Submission 1 - Elodie Richard"
+output:
+  word_document: default
+  pdf_document: default
 date: "2024-07-25"
 ---
 ```{r}
-filenames <- list.files(path = "/Users/elodierichard/Documents/QBS103/Project Submission 1 Data", pattern = ".csv")
-print(filenames)
+project1.data <- list.files(path = "/Users/elodierichard/Documents/QBS103/Project Submission 1 Data", pattern = ".csv")
+print(project1.data) #I first moved both data files into one folder on my laptop to retrieve it
 ```
 ```{r}
-setwd("/Users/elodierichard/Documents/QBS103/Project Submission 1 Data")
+setwd("/Users/elodierichard/Documents/QBS103/Project Submission 1 Data") #this is to set the working directory to the data files in this folder
 
-#for (file in filenames){
-  #the_file <- read.csv(file)
- # print(head(the_file))
-#}
+genes <- read.csv("QBS103_GSE157103_genes.csv") #this is to rename and retrieve the first gene data file
+the_matrix <- read.csv("QBS103_GSE157103_series_matrix.csv") #this is to rename and retrieve the second series matrix data file
 
-genes <- read.csv("QBS103_GSE157103_genes.csv")
-the_matrix <- read.csv("QBS103_GSE157103_series_matrix.csv")
-
-head(genes)
+head(genes) #this is used to visualize the data and only for 6 rows
 head(the_matrix)
 ```
 
-#melt the files together tidyverse maybe datawrangling2
 ```{r}
-#creating a genes data frame for that file
-test_genes <- as.data.frame(t(genes))
-names(test_genes) <- test_genes[1,]
-test_genes <- test_genes[-1,]
+#creating a genes data frame for the genes file
+test_genes <- as.data.frame(t(genes)) 
+names(test_genes) <- test_genes[1,] #this allows the genes table to be organized according to names by adding an extra row with the names
+test_genes <- test_genes[-1,] #this removes the first row containing "x" in the genes file so that it can be combined in the next step with the matrix file
 ```
 
 ```{r}
-test_genes$participant_id <- row.names(test_genes)
-combined <- merge(test_genes, the_matrix, by = "participant_id")
+test_genes$participant_id <- row.names(test_genes) #this will move the participant id into it's own column in the table
+combined <- merge(test_genes, the_matrix, by = 'participant_id') #this combines the genes file and matrix file together to create one table that I names "combined"
 ```
 
 ```{r}
+#Histogram using the gene AAAS 
 library(ggplot2)
 setwd("/Users/elodierichard/Documents/QBS103/Project Submission 1 Data")
 
-#combined$AAAS <- as.numeric(combined$AAAS)
+combined$AAAS <- as.numeric(combined$AAAS) #this is so that the plot can pull just the gene AAAS from the combined data in order to plot it
 
- #gene_name <- 'A4GALT'
-  #age_var <- combined$age
-  histogram <- ggplot(combined, aes(x=combined$AAAS)) + geom_histogram(bins = 10, fill = "darkgreen") + labs(title = 'Gene Expression', x= 'Gene Expression of AAAS' , y= 'Frequency of AAAS' )
-  plot(histogram)
+histogram <- ggplot(combined, aes(x=combined$AAAS)) + #this called on ggplot to use the file "combined" then aes was used to plot the x-axis with the gene chosen AAAS
+  geom_histogram(bins = 20, color = 'navy', fill = 'lightblue') +  #this generated the histogram with the number of bars (20), the color and fill of each bar
+  labs(title = 'Gene Expression of AAAS', #this labeled the title and the axis
+        x= 'Gene: AAAS' , 
+        y= 'Frequency of AAAS' )
+plot(histogram)
 ```
 
 ```{r}
+#Scatterplot of the gene expression of AAAS compared to ferritin levels
 library(ggplot2)
-combined$ferritin.ng.ml. <- as.numeric(combined$ferritin.ng.ml.)
-
-  scatterplot <- ggplot(combined, aes(x= combined$ferritin.ng.ml., y = combined$AAAS)) + geom_point(bins = 10, fill = "darkgreen") +  labs(title = 'Gene Expression and Ferritin' , x= 'Ferritin', y= 'Gene AAAS')
-  plot(scatterplot)
+combined$ferritin.ng.ml. <- as.numeric(combined$ferritin.ng.ml.) #used to pull out ferritin to plot 
+#comments mostly the same as for histogram except for a few changes
+scatterplot <- ggplot(combined, aes(x= combined$ferritin.ng.ml., y = combined$AAAS)) + #need to specifiy what is on the y-axis
+  geom_point(bins = 10, color = 'violet') +  #use geom_point for a scatter plot to be generated
+  labs(title = 'Gene Expression of AAAS vs. Ferritin Levels' , 
+       x= 'Ferritin Levels (ng/mL)', 
+       y= 'Gene Expression of AAAS')
+#for trendline it's geom_smooth
+plot(scatterplot)
 ```
 
 ```{r}
-#Boxplot
+#Scatterplot for Gene Expression vs Age (this was run to compare different data to see differences) not using for presentation
 library(ggplot2)
-#combined$age <- as.numeric(combined$age)
-#combined$charlson_score <- as.numeric(combined$charlson_score)
 
- #gene_name <- 'A4GALT'
-  #age_var <- combined$age
-  boxplot <- ggplot(combined, aes(x=icu_status, y = AAAS, fill = age)) + geom_boxplot(bins = 10, fill = "darkgreen") + labs(title = 'Gene Expression related to ICU Status', x= 'ICU Status' , y= 'Gene AAAS', fill= 'Age')
-  plot(boxplot)
+scatterplot_practice<- ggplot(combined, aes(x= combined$age, y = combined$AAAS)) + 
+  geom_point(bins = 10, color = 'green') +  
+  labs(title = 'Gene Expression of AAAS vs. Age' , x= 'Age of Participant (yrs)', y= 'Gene AAAS')
+plot(scatterplot_practice)
+```
+
+```{r}
+#Boxplot comparing gene expression of AAAS related to ICU status depending on Age
+library(ggplot2)
+#similar process to histogram and scatterplot with a few adjustments
+boxplot <- ggplot(combined, aes(x=icu_status, y = AAAS, fill = age)) + #need to add a fill to demonstrate the age range depending on gene expression and if ICU status
+  geom_boxplot(bins = 10, fill = 'maroon') + #to generate a box plot use geom_boxplot
+  labs(title = 'Gene Expression of AAAS vs ICU Status and Participant Age',  #to label each attribute of the boxplot
+       x= 'ICU Status of Participant' , 
+       y= 'Gene Expression of AAAS', 
+       fill= 'Age of Participant (yrs)')
+plot(boxplot)
 ```
