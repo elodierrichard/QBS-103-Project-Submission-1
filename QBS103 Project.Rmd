@@ -82,3 +82,45 @@ boxplot <- ggplot(combined, aes(x=icu_status, y = AAAS, fill = age)) + #need to 
        fill= 'Age of Participant (yrs)')
 plot(boxplot)
 ```
+```{r}
+#Boxplot comparing gene expression of AAAS related to ICU status depending on Age
+library(ggplot2)
+#similar process to histogram and scatterplot with a few adjustments
+boxplot <- ggplot(combined, aes(x=icu_status, y = AAAS, fill = mechanical_ventilation)) + #need to add a fill to demonstrate the age range depending on gene expression and if ICU status
+  geom_boxplot() + #to generate a box plot use geom_boxplot
+  labs(title = 'Gene Expression of AAAS vs ICU Status and Mechanical Ventilation',  #to label each attribute of the boxplot
+       x= 'ICU Status of Participant' , 
+       y= 'Gene Expression of AAAS', 
+       fill= 'Mechanical Ventilation')
+plot(boxplot)
+```
+
+
+```{r}
+###as.numeric for all the genes using
+## rename the titles
+## comment out things you don't need anymore
+
+sub_2_plots <- function(data, genes, cat1 , cat2, cont ) {
+  #filenames <- list.files(path = project1.data, pattern = ".csv")
+    
+    histogram2 <- ggplot(data, aes_string(x= genes)) + geom_histogram(bins = 20, color = 'navy', fill = 'lightblue') + labs(title = 'Gene Expression of AAAS', x= 'Gene: AAAS' , y= 'Frequency of AAAS' )
+    scatterplot2 <- ggplot(data, aes_string(x= cont, y = genes)) + geom_point(bins = 10, color = 'violet') + labs(title = 'Gene Expression of AAAS vs. Ferritin Levels' , x= 'Ferritin Levels (ng/mL)', y= 'Gene Expression of AAAS')
+   boxplot2 <- ggplot(data, aes_string(x= cat1, y = genes, fill = cat2)) + geom_boxplot() + labs(title = 'Gene Expression of AAAS vs ICU Status and Mechanical Ventilation', x= 'ICU Status of Participant' , y= 'Gene Expression of AAAS', fill= 'Mechanical Ventilation')
+
+    plot(histogram2)
+    plot(scatterplot2)
+    plot(boxplot2)
+}
+
+specific_genes = subset(combined, select = c("AAAS", "AACS", "AADAC"))
+for (gene in colnames(specific_genes)) {
+  print(gene)
+  print(combined[,gene])
+  sub_2_plots(combined, gene , cat1 = "icu_status", cat2 = "mechanical_ventilation", cont = "ferritin.ng.ml.")}
+
+ # sub_2_plots(combined, "AAAS", cat1 = "icu_status", cat2 = "mechanical_ventilation", cont = "ferritin.ng.ml.")
+```
+```
+
+
