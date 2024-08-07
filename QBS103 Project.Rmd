@@ -1,5 +1,5 @@
 ---
-title: "QBS103 Project Submission 1 - Elodie Richard"
+title: "QBS103 Project - Elodie Richard"
 output:
   word_document: default
   pdf_document: default
@@ -15,8 +15,8 @@ setwd("/Users/elodierichard/Documents/QBS103/Project Submission 1 Data") #this i
 genes <- read.csv("QBS103_GSE157103_genes.csv") #this is to rename and retrieve the first gene data file
 the_matrix <- read.csv("QBS103_GSE157103_series_matrix.csv") #this is to rename and retrieve the second series matrix data file
 
-head(genes) #this is used to visualize the data and only for 6 rows
-head(the_matrix)
+#head(genes) #this is used to visualize the data and only for 6 rows
+#head(the_matrix)
 ```
 
 ```{r}
@@ -36,6 +36,8 @@ combined <- merge(test_genes, the_matrix, by = 'participant_id') #this combines 
 library(ggplot2)
 setwd("/Users/elodierichard/Documents/QBS103/Project Submission 1 Data")
 
+combined$ABCA13 <- as.numeric(combined$ABCA13) #needed to make them all as.numeric for submission 2
+combined$AACS <- as.numeric(combined$AACS)
 combined$AAAS <- as.numeric(combined$AAAS) #this is so that the plot can pull just the gene AAAS from the combined data in order to plot it
 
 histogram <- ggplot(combined, aes(x=combined$AAAS)) + #this called on ggplot to use the file "combined" then aes was used to plot the x-axis with the gene chosen AAAS
@@ -43,7 +45,7 @@ histogram <- ggplot(combined, aes(x=combined$AAAS)) + #this called on ggplot to 
   labs(title = 'Gene Expression of AAAS', #this labeled the title and the axis
         x= 'Gene: AAAS' , 
         y= 'Frequency of AAAS' )
-plot(histogram)
+#plot(histogram)
 ```
 
 ```{r}
@@ -57,7 +59,7 @@ scatterplot <- ggplot(combined, aes(x= combined$ferritin.ng.ml., y = combined$AA
        x= 'Ferritin Levels (ng/mL)', 
        y= 'Gene Expression of AAAS')
 #for trendline it's geom_smooth
-plot(scatterplot)
+#plot(scatterplot)
 ```
 
 ```{r}
@@ -67,7 +69,7 @@ library(ggplot2)
 scatterplot_practice<- ggplot(combined, aes(x= combined$age, y = combined$AAAS)) + 
   geom_point(bins = 10, color = 'green') +  
   labs(title = 'Gene Expression of AAAS vs. Age' , x= 'Age of Participant (yrs)', y= 'Gene AAAS')
-plot(scatterplot_practice)
+#plot(scatterplot_practice)
 ```
 
 ```{r}
@@ -80,44 +82,49 @@ boxplot <- ggplot(combined, aes(x=icu_status, y = AAAS, fill = age)) + #need to 
        x= 'ICU Status of Participant' , 
        y= 'Gene Expression of AAAS', 
        fill= 'Age of Participant (yrs)')
-plot(boxplot)
+#plot(boxplot)
 ```
 ```{r}
+### this is the fixed boxplot from the previous submission so that it includes a categorical variable (mechanical ventilation) instead of another continuous variable (age)
 #Boxplot comparing gene expression of AAAS related to ICU status depending on Age
 library(ggplot2)
 #similar process to histogram and scatterplot with a few adjustments
 boxplot <- ggplot(combined, aes(x=icu_status, y = AAAS, fill = mechanical_ventilation)) + #need to add a fill to demonstrate the age range depending on gene expression and if ICU status
   geom_boxplot() + #to generate a box plot use geom_boxplot
+  scale_fill_manual(values = c('pink','salmon')) +
   labs(title = 'Gene Expression of AAAS vs ICU Status and Mechanical Ventilation',  #to label each attribute of the boxplot
        x= 'ICU Status of Participant' , 
        y= 'Gene Expression of AAAS', 
        fill= 'Mechanical Ventilation')
-plot(boxplot)
+#plot(boxplot)
 ```
 
+Submission 2
+Build a function to create the plots you made for Presentation 1, incorporating any feedback you received on your submission. Your functions should take the following input: (1) the name of the data frame, (2) a list of 1 or more gene names, (3) 1 continuous covariate, and (4) two categorical covariates (10 pts)
+Select 2 additional genes (for a total of 3 genes) to look at and implement a loop to generate your figures using the function you created (10 pts)
+Present one of your boxplots in class. Be prepared to explain the gene and covariates you chose and comment on the distribution as if you were presenting your research findings. No slides are required, just bring your plot. In class, be prepared to provide constructive feedback for your classmates (5 pts)
+Make sure you push your code to your git repository prior to class. As a reminder, we do not need you to share your GitHub repository until the final submission. Pushing this submission to GitHub will be worth 5 pts on the final submission and you can earn 1 additional point on your final project grade if you push 1 extra time along the way (changes between pushes must be significant to earn the extra point). 
 
 ```{r}
-###as.numeric for all the genes using
-## rename the titles
 ## comment out things you don't need anymore
 
-sub_2_plots <- function(data, genes, cat1 , cat2, cont ) {
-  #filenames <- list.files(path = project1.data, pattern = ".csv")
+sub_2_plots <- function(data, genes, cat1 , cat2, cont ) { #created a new function with each element defined
     
-    histogram2 <- ggplot(data, aes_string(x= genes)) + geom_histogram(bins = 20, color = 'navy', fill = 'lightblue') + labs(title = 'Gene Expression of AAAS', x= 'Gene: AAAS' , y= 'Frequency of AAAS' )
-    scatterplot2 <- ggplot(data, aes_string(x= cont, y = genes)) + geom_point(bins = 10, color = 'violet') + labs(title = 'Gene Expression of AAAS vs. Ferritin Levels' , x= 'Ferritin Levels (ng/mL)', y= 'Gene Expression of AAAS')
-   boxplot2 <- ggplot(data, aes_string(x= cat1, y = genes, fill = cat2)) + geom_boxplot() + labs(title = 'Gene Expression of AAAS vs ICU Status and Mechanical Ventilation', x= 'ICU Status of Participant' , y= 'Gene Expression of AAAS', fill= 'Mechanical Ventilation')
+    histogram2 <- ggplot(data, aes_string(x= genes)) + geom_histogram(bins = 20, color = 'navy', fill = 'lightblue') + labs(title = 'Gene Expression', x= 'Gene' , y= 'Frequency of the Gene' )
+    scatterplot2 <- ggplot(data, aes_string(x= cont, y = genes)) + geom_point(bins = 10, color = 'violet') + labs(title = 'Gene Expression vs. Ferritin Levels' , x= 'Ferritin Levels (ng/mL)', y= 'Gene Expression')
+   boxplot2 <- ggplot(data, aes_string(x= cat1, y = genes, fill = cat2)) + geom_boxplot() + scale_fill_manual(values = c('pink','salmon')) + labs(title = 'Gene Expression vs ICU Status and Mechanical Ventilation', x= 'ICU Status of Participant' , y= 'Gene Expression', fill= 'Mechanical Ventilation')
 
     plot(histogram2)
     plot(scatterplot2)
     plot(boxplot2)
 }
 
-specific_genes = subset(combined, select = c("AAAS", "AACS", "AADAC"))
-for (gene in colnames(specific_genes)) {
+specific_genes = subset(combined, select = c("AAAS", "AACS", "ABCA13")) #this is to subset the data table so that it only runs through the chosen genes and not every gene in the table
+### had to be sure to make these chosen genes as.numeric so that it would run through
+for (gene in colnames(specific_genes)) { #created a for loop to run through every gene chosen in the newly created subset of the data
   print(gene)
-  print(combined[,gene])
-  sub_2_plots(combined, gene , cat1 = "icu_status", cat2 = "mechanical_ventilation", cont = "ferritin.ng.ml.")}
+  print(combined[,gene]) # this will grab each row and the gene columns specifically
+  sub_2_plots(combined, gene , cat1 = "icu_status", cat2 = "mechanical_ventilation", cont = "ferritin.ng.ml.")} #defined each of the variables from the function above so that it would plot
 
  # sub_2_plots(combined, "AAAS", cat1 = "icu_status", cat2 = "mechanical_ventilation", cont = "ferritin.ng.ml.")
 ```
